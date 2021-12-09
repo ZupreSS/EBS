@@ -17,13 +17,12 @@ int main() {
     float ro = 1.225;
     float R;
     float maxYR = 0;
-    int goy;
     int H = 1000;
     int bebra;
     float a;
     float v0;
-    float awind;
-    float Vwind;
+    float awind=0;
+    float Vwind=0;
     float x = 0;
     float y = 0;
     float Vx;
@@ -45,6 +44,7 @@ int main() {
     int counter = 1;
     float xoutR;
     float T=0.001;
+    float h;
     // основной цикл программы
     while (true) {
         counter = 1;
@@ -56,7 +56,6 @@ int main() {
         vmem = v0;
         std::cout << "Enter the radius of the ball (meters) " << std::endl;
         std::cin >> R;
-        int h;
         std::cout << "Enter the mass (kilograms) " << std::endl;
         std::cin >> m;
         std::cout << "Enter the initial heigh (meters) " << std::endl;
