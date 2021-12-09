@@ -1,0 +1,234 @@
+
+#include <SFML/Graphics.hpp>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <conio.h>
+
+using namespace sf;
+using namespace std;
+
+
+
+int main() {
+    // инициализация
+    int W = 1000;
+    float k = 0.4;
+    float ro = 1.225;
+    float R;
+    float maxYR = 0;
+    int goy;
+    int H = 1000;
+    int bebra;
+    float a;
+    float v0;
+    float awind;
+    float Vwind;
+    float x = 0;
+    float y = 0;
+    float Vx;
+    float Vy;
+    float g = 9.81;
+    float maxY = 0;
+    int i;
+    float t = 0;
+    float to = 0;
+    float Vmemory;
+    float m;
+    float vmem;
+    float VwX;
+    float VwY;
+    int n;
+    float rec;
+    float windX;
+    float windY;
+    int counter = 1;
+    float xoutR;
+    float T=0.001;
+    // основной цикл программы
+    while (true) {
+        counter = 1;
+        system("cls");
+        std::cout << "Enter  the angle (degrees) " << std::endl;
+        std::cin >> a;
+        std::cout << "Enter the initial speed (meters per second) " << std::endl;
+        std::cin >> v0;
+        vmem = v0;
+        std::cout << "Enter the radius of the ball (meters) " << std::endl;
+        std::cin >> R;
+        int h;
+        std::cout << "Enter the mass (kilograms) " << std::endl;
+        std::cin >> m;
+        std::cout << "Enter the initial heigh (meters) " << std::endl;
+        std::cin >> h;
+        a = (a * 3.141) / 180;
+        x = 0;
+        y = h;
+        Vx = v0 * cos(a);
+        Vy = v0 * sin(a);
+        maxYR = 0;
+        t = 0;
+        to = 0;
+        Vmemory = v0;
+        int maxXL = 0;
+        int maxXR = 0;
+        m;
+        
+        std::cout << "Enter the wind direction (degrees) " << std::endl;
+        std::cin >> awind;
+        awind = (awind * 3.141) / 180;
+        std::cout << "Enter the wind speed (meters per second) " << std::endl;
+        std::cin >> Vwind;
+        std::cout << "Enter the integration step " << std::endl;
+        std::cin >> T;
+        windX = Vwind * cos(awind);
+        windY = Vwind * sin(awind);
+
+        //расчет дальности полета
+        vmem = v0;
+        VwX = -windX + Vx;
+        VwY = -windY + Vy;
+        for (i = 0;y >= 0;i++) {
+            v0 = sqrt(pow((Vx - windX), 2) + pow((Vy - windY), 2));
+            Vx = Vx - ((0.5 * k * ro * R * R * 3.141 * v0 * (Vx - windX) / m) * T);
+            Vy = Vy - g * T - ((0.5 * k * ro * R * R * 3.141 * v0 * (Vy - windY)) / m) * T;
+            x = x + Vx * T - (((0.5 * k * ro * R * R * 3.141 * v0 * (Vx - windX)) / m) * T * T / 2);
+            y = y + Vy * T - ((((0.5 * k * ro * R * R * 3.141 * v0 * (Vy - windY)) / m) + g) * T * T / 2);
+            if (y > maxYR) maxYR = y;
+            if (x > maxXR) maxXR = x;
+
+        }
+        // автомасштабирование
+
+        if (maxXR > maxYR) rec = x * 2;
+        else rec = maxYR * 2;
+        x = 0;
+        y = 0;
+        Vx = v0 * cos(a);
+        Vy = v0 * sin(a);
+        maxY = 0;
+        sf::Font font;
+        if (!font.loadFromFile("C:/PROJECT/arial.ttf"))
+        {
+            std::cout << "error to load a font" << std::endl;
+        }
+        sf::Text text;
+        text.setFont(font);
+        RenderWindow window(VideoMode(H, H), "Simulation");
+
+
+        while (window.isOpen()) {
+            Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == Event::Closed)
+                    window.close();
+            }
+            //ось х и у
+            sf::Vertex lone[] =
+            {
+             sf::Vertex(sf::Vector2f(40, H - 50)),
+             sf::Vertex(sf::Vector2f(H - 40, H - 50))
+            };
+            window.draw(lone, 2, sf::Lines);
+
+            sf::Vertex line[] =
+            {
+             sf::Vertex(sf::Vector2f(100, H - 40)),
+             sf::Vertex(sf::Vector2f(100, 50))
+            };
+            window.draw(line, 2, sf::Lines);
+
+            sf::ConvexShape convex;
+            //стрелки осей
+            convex.setPointCount(3);
+
+            convex.setPoint(0, sf::Vector2f(H - 40, H - 45));
+            convex.setPoint(1, sf::Vector2f(H - 30, H - 50));
+            convex.setPoint(2, sf::Vector2f(H - 40, H - 55));
+            convex.setFillColor(Color(255, 255, 255));
+            window.draw(convex);
+
+            sf::ConvexShape Yandex;
+
+            Yandex.setPointCount(3);
+
+            Yandex.setPoint(0, sf::Vector2f(95, 50));
+            Yandex.setPoint(1, sf::Vector2f(100, 40));
+            Yandex.setPoint(2, sf::Vector2f(105, 50));
+            Yandex.setFillColor(Color(255, 255, 255));
+            window.draw(Yandex);
+
+            Vx = Vmemory * cos(a);
+            Vy = Vmemory * sin(a);
+            x = 0;
+            y = h;
+            to = 0;
+            CircleShape joint(1.f);
+            for (i = 0; y >= 0; i++) {
+                v0 = sqrt(pow(VwX, 2) + pow(VwY, 2));
+                Vy = Vy - g* T;
+                x = x + Vx* T;
+                y = y + Vy* T - (g* T* T) / 2;
+                if (y > maxY) maxY = y;
+                joint.setPosition(100 + (H * x / rec), H - 50 - (H * y / rec));
+                joint.setFillColor(Color(255, 255, 255));
+                window.draw(joint);
+                to += T;
+            }
+            xoutR = x;
+
+            Vx = Vmemory * cos(a);
+            Vy = Vmemory * sin(a);
+
+            x = 0;
+            y = h;
+            windX = Vwind * cos(awind);
+            windY = Vwind * sin(awind);
+            t = 0;
+            //еще рас рассчет и отрисовка
+            CircleShape point(2.f);
+            for (i = 0; y >= 0; i++) {
+                v0 = sqrt(pow((Vx - windX), 2) + pow((Vy - windY), 2));
+                Vx = Vx - ((0.5 * k * ro * R * R * 3.141 * v0 * (Vx - windX) / m) * T);
+                Vy = Vy - g * T - ((0.5 * k * ro * R * R * 3.141 * v0 * (Vy - windY)) / m) * T;
+                x = x + Vx * T - (((0.5 * k * ro * R * R * 3.141 * v0 * (Vx - windX)) / m)* T* T / 2);
+                y = y + Vy * T - ((((0.5 * k * ro * R * R * 3.141 * v0 * (Vy - windY)) / m) + g) * T*T / 2);
+                point.setPosition(100 + (H * x / rec), H - 50 - (H * y / rec));
+                point.setFillColor(Color(255, 255, 255));
+                window.draw(point);
+                t = t + T;
+            }
+
+            text.setCharacterSize(12);
+            std::ostringstream textx;
+            textx << x;
+            text.setString(textx.str());
+            text.setPosition(100 + (H * x / rec), H - 40);
+            window.draw(text);
+
+            std::ostringstream texty;
+            texty << maxYR;
+            text.setString(texty.str());
+            text.setPosition(40, H - 50 - (H * maxYR / rec));
+            window.draw(text);
+
+
+            text.setString("0");
+            text.setPosition(90, H - 50);
+            window.draw(text);
+
+            if (counter == 1) {
+                std::cout << "Passed time without air " << to << std::endl;
+                std::cout << "Passed time with air " << t << std::endl;
+                std::cout << "Distance without air " << xoutR << std::endl;
+                std::cout << "Height without air " << maxY << std::endl;
+                std::cout << "Distance with air " << x << std::endl;
+                std::cout << "Height with air " << maxYR << std::endl << std::endl;
+                std::cout << "External ballistics simulation. Simon Daniil. LNIP. 2021";
+                counter++;
+            }
+            window.display();
+        }
+        
+    }
+}
